@@ -35,7 +35,7 @@ type TodayFortuneResponse struct {
 	HealthFortune   string   `json:"health_fortune" example:"건강운이 양호한 하루입니다."`
 	LuckyColor      string   `json:"lucky_color" example:"초록"`
 	LuckyColorHex   string   `json:"lucky_color_hex" example:"#4CAF50"`
-	LuckyNumbers    []int    `json:"lucky_numbers" example:"[3,8]"`
+	LuckyNumbers    []int    `json:"lucky_numbers"`
 }
 
 type SimilarUsersResponse struct {

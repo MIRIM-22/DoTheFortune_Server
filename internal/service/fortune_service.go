@@ -162,7 +162,7 @@ func (s *fortuneService) GetTodayFortune(userID uint) (*TodayFortuneResult, erro
 	record := &models.FortuneRecord{
 		UserID:  userID,
 		Type:    "today_fortune",
-		Content: fortune,
+		Content: totalFortune,
 		Metadata: `{"lucky_color": "` + luckyColor + `", "lucky_numbers": ` + utils.IntSliceToJSON(luckyNumbers) + `}`,
 	}
 

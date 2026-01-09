@@ -8,9 +8,7 @@ import (
 	"io"
 	"net/http"
 	"dothefortune_server/internal/config"
-	"dothefortune_server/internal/models"
 	"dothefortune_server/internal/repository"
-	"dothefortune_server/internal/utils"
 )
 
 type AIService interface {

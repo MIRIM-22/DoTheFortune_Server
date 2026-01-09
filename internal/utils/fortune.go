@@ -231,38 +231,6 @@ func CalculateConflictScore(fortune1, fortune2 map[string]string) float64 {
 	return math.Min(100, math.Max(0, score))
 }
 
-func CalculateSimilarityScore(fortune1, fortune2 map[string]string) float64 {
-	matches := 0
-	total := 8
-	
-	if fortune1["year_stem"] == fortune2["year_stem"] {
-		matches++
-	}
-	if fortune1["year_branch"] == fortune2["year_branch"] {
-		matches++
-	}
-	if fortune1["month_stem"] == fortune2["month_stem"] {
-		matches++
-	}
-	if fortune1["month_branch"] == fortune2["month_branch"] {
-		matches++
-	}
-	if fortune1["day_stem"] == fortune2["day_stem"] {
-		matches++
-	}
-	if fortune1["day_branch"] == fortune2["day_branch"] {
-		matches++
-	}
-	if fortune1["hour_stem"] == fortune2["hour_stem"] {
-		matches++
-	}
-	if fortune1["hour_branch"] == fortune2["hour_branch"] {
-		matches++
-	}
-	
-	return float64(matches) / float64(total) * 100
-}
-
 func GetTodayFortune(fortuneInfo map[string]string) string {
 	dayStem := fortuneInfo["day_stem"]
 	dayBranch := fortuneInfo["day_branch"]
