@@ -1,0 +1,701 @@
+basePath: /api/v1
+definitions:
+  handler.AuthResponse:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user: {}
+    type: object
+  handler.CompatibilityMatchesResponse:
+    properties:
+      matches:
+        items: {}
+        type: array
+    type: object
+  handler.CreateAIImageRequest:
+    properties:
+      image_url:
+        example: https://example.com/image.jpg
+        format: uri
+        type: string
+    required:
+    - image_url
+    type: object
+  handler.CreateFortuneInfoRequest:
+    properties:
+      birth_day:
+        example: 1
+        maximum: 31
+        minimum: 1
+        type: integer
+      birth_hour:
+        example: 12
+        maximum: 23
+        minimum: 0
+        type: integer
+      birth_minute:
+        example: 0
+        maximum: 59
+        minimum: 0
+        type: integer
+      birth_month:
+        example: 1
+        maximum: 12
+        minimum: 1
+        type: integer
+      birth_place:
+        example: 서울
+        type: string
+      birth_year:
+        example: 2000
+        maximum: 2100
+        minimum: 1900
+        type: integer
+      unknown_time:
+        example: false
+        type: boolean
+    required:
+    - birth_day
+    - birth_month
+    - birth_place
+    - birth_year
+    type: object
+  handler.ErrorResponse:
+    properties:
+      error:
+        example: error message
+        type: string
+    type: object
+  handler.LoginRequest:
+    properties:
+      email:
+        example: user@example.com
+        format: email
+        type: string
+      password:
+        example: password123
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handler.MessageResponse:
+    properties:
+      message:
+        example: success message
+        type: string
+    type: object
+  handler.RecordsResponse:
+    properties:
+      records:
+        items: {}
+        type: array
+    type: object
+  handler.RegisterRequest:
+    properties:
+      email:
+        example: user@example.com
+        format: email
+        type: string
+      name:
+        example: 홍길동
+        type: string
+      password:
+        example: password123
+        minLength: 6
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  handler.SimilarUsersResponse:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/handler.UserWithScore'
+        type: array
+    type: object
+  handler.TodayFortuneResponse:
+    properties:
+      fortune:
+        example: 오늘은 새로운 시작에 좋은 날입니다. 자신감을 가지고 도전해보세요.
+        type: string
+    type: object
+  handler.UserWithScore:
+    properties:
+      similarity_score:
+        example: 85.5
+        type: number
+      user: {}
+    type: object
+  models.Compatibility:
+    properties:
+      analysis:
+        example: 두 사람은 매우 좋은 궁합을 가지고 있습니다.
+        type: string
+      compatibility_type:
+        example: excellent
+        type: string
+      created_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      score:
+        example: 85.5
+        type: number
+      updated_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      user1_id:
+        example: 1
+        type: integer
+      user2_id:
+        example: 2
+        type: integer
+    type: object
+  models.FortuneInfo:
+    properties:
+      birth_day:
+        example: 1
+        type: integer
+      birth_hour:
+        example: 12
+        type: integer
+      birth_minute:
+        example: 0
+        type: integer
+      birth_month:
+        example: 1
+        type: integer
+      birth_place:
+        example: 서울
+        type: string
+      birth_year:
+        example: 2000
+        type: integer
+      created_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      day_earthly_branch:
+        example: 子
+        type: string
+      day_heavenly_stem:
+        example: 甲
+        type: string
+      hour_earthly_branch:
+        example: 子
+        type: string
+      hour_heavenly_stem:
+        example: 甲
+        type: string
+      id:
+        example: 1
+        type: integer
+      month_earthly_branch:
+        example: 寅
+        type: string
+      month_heavenly_stem:
+        example: 戊
+        type: string
+      unknown_time:
+        example: false
+        type: boolean
+      updated_at:
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      user_id:
+        example: 1
+        type: integer
+      year_earthly_branch:
+        example: 子
+        type: string
+      year_heavenly_stem:
+        example: 庚
+        type: string
+    type: object
+host: localhost:8080
+info:
+  title: DoTheFortune API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 이메일과 비밀번호로 로그인합니다. 인증 성공 시 JWT 토큰을 발급하며, 토큰은 응답 본문과 쿠키에 포함됩니다.
+        토큰은 24시간 동안 유효합니다.
+      parameters:
+      - description: 로그인 요청 정보
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 로그인 성공
+          schema:
+            $ref: '#/definitions/handler.AuthResponse'
+        "400":
+          description: 잘못된 요청 (이메일 형식 오류 등)
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: 인증 실패 (이메일 또는 비밀번호 불일치)
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: 로그인
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: 로그아웃하고 인증 쿠키를 삭제합니다. 클라이언트 측에서도 토큰을 제거해야 합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 로그아웃 성공
+          schema:
+            $ref: '#/definitions/handler.MessageResponse'
+      summary: 로그아웃
+      tags:
+      - auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: 현재 인증된 사용자의 ID를 반환합니다. Authorization 헤더의 Bearer 토큰 또는 쿠키의 토큰을 사용하여
+        인증합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '사용자 ID 반환"  example:"{\"user_id\": 1}'
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 인증 실패 (토큰 없음, 만료, 또는 유효하지 않음)
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 현재 사용자 정보 조회
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: 새로운 사용자를 등록합니다. 이메일, 비밀번호(최소 6자), 이름을 입력받아 계정을 생성하고 JWT 토큰을 발급합니다.
+        토큰은 쿠키에도 저장됩니다.
+      parameters:
+      - description: 회원가입 요청 정보
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 회원가입 성공
+          schema:
+            $ref: '#/definitions/handler.AuthResponse'
+        "400":
+          description: 잘못된 요청 (이메일 형식 오류, 비밀번호 길이 부족, 이미 존재하는 이메일 등)
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 서버 내부 오류
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: 회원가입
+      tags:
+      - auth
+  /compatibility/:
+    get:
+      consumes:
+      - application/json
+      description: 현재 사용자와 다른 사용자 간의 저장된 궁합 정보를 조회합니다. 저장된 궁합이 없으면 자동으로 계산하여 반환합니다.
+      parameters:
+      - description: 상대방 사용자 ID
+        in: query
+        minimum: 1
+        name: user2_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 궁합 정보 조회 성공
+          schema:
+            $ref: '#/definitions/models.Compatibility'
+        "400":
+          description: 잘못된 요청
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: 인증 실패
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 서버 내부 오류
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 궁합 조회
+      tags:
+      - compatibility
+  /compatibility/best:
+    get:
+      consumes:
+      - application/json
+      description: 현재 사용자와 가장 좋은 궁합을 가진 사용자들을 궁합 점수 순으로 반환합니다. 점수가 높은 순서대로 정렬되어 반환됩니다.
+      parameters:
+      - default: 10
+        description: 반환할 최대 개수
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 최고 궁합 목록
+          schema:
+            $ref: '#/definitions/handler.CompatibilityMatchesResponse'
+        "401":
+          description: 인증 실패
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 서버 내부 오류
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 최고 궁합 목록 조회
+      tags:
+      - compatibility
+  /compatibility/calculate:
+    get:
+      consumes:
+      - application/json
+      description: 현재 사용자와 다른 사용자 간의 궁합을 계산합니다. 두 사용자의 사주 정보를 비교하여 궁합 점수(0-100)와 분석
+        결과를 반환합니다. 계산 결과는 데이터베이스에 저장되며, 이후 조회 시 재계산 없이 저장된 결과를 반환합니다.
+      parameters:
+      - description: 상대방 사용자 ID
+        in: query
+        minimum: 1
+        name: user2_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 궁합 계산 성공
+          schema:
+            $ref: '#/definitions/models.Compatibility'
+        "400":
+          description: 잘못된 요청 (자기 자신과의 궁합 계산 시도 등)
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: 인증 실패
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 서버 내부 오류 또는 사주 정보 없음
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 궁합 계산
+      tags:
+      - compatibility
+  /compatibility/worst:
+    get:
+      consumes:
+      - application/json
+      description: 현재 사용자와 가장 나쁜 궁합을 가진 사용자들을 궁합 점수 순으로 반환합니다. 점수가 낮은 순서대로 정렬되어 반환됩니다.
+      parameters:
+      - default: 10
+        description: 반환할 최대 개수
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 최악 궁합 목록
+          schema:
+            $ref: '#/definitions/handler.CompatibilityMatchesResponse'
+        "401":
+          description: 인증 실패
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 서버 내부 오류
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 최악 궁합 목록 조회
+      tags:
+      - compatibility
+  /fortune/info:
+    get:
+      consumes:
+      - application/json
+      description: 현재 사용자의 등록된 사주 정보를 조회합니다. 사주 정보가 없으면 404 오류가 반환됩니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 사주 정보 조회 성공
+          schema:
+            $ref: '#/definitions/models.FortuneInfo'
+        "401":
+          description: 인증 실패
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: 사주 정보를 찾을 수 없음
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 사주 정보 조회
+      tags:
+      - fortune
+    post:
+      consumes:
+      - application/json
+      description: 사용자의 사주 정보를 등록하거나 수정합니다. 생년월일, 출생 시각, 출생지를 입력받아 사주를 계산하고 저장합니다.
+        출생 시각을 모를 경우 unknown_time을 true로 설정하면 자동으로 12시 0분으로 설정됩니다.
+      parameters:
+      - description: 사주 정보
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateFortuneInfoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 사주 정보 저장 성공
+          schema:
+            $ref: '#/definitions/models.FortuneInfo'
+        "400":
+          description: 잘못된 요청 (필수 필드 누락, 잘못된 날짜 형식 등)
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: 인증 실패
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 서버 내부 오류
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 사주 정보 등록/수정
+      tags:
+      - fortune
+  /fortune/similar:
+    get:
+      consumes:
+      - application/json
+      description: 현재 사용자와 유사한 사주를 가진 다른 사용자들을 찾아 반환합니다. 일간 천간 또는 지지를 기준으로 유사도를 계산하며,
+        유사도 점수(0-100)와 함께 반환됩니다.
+      parameters:
+      - default: 10
+        description: 반환할 최대 사용자 수
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 유사 사용자 목록
+          schema:
+            $ref: '#/definitions/handler.SimilarUsersResponse'
+        "401":
+          description: 인증 실패
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 서버 내부 오류
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 유사 사주 친구 찾기
+      tags:
+      - fortune
+  /fortune/today:
+    get:
+      consumes:
+      - application/json
+      description: 사용자의 사주 정보를 기반으로 오늘의 운세를 한 줄로 제공합니다. 사주 정보가 등록되어 있어야 하며, 조회 시 기록이
+        자동으로 저장됩니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 오늘의 운세 조회 성공
+          schema:
+            $ref: '#/definitions/handler.TodayFortuneResponse'
+        "400":
+          description: 사주 정보가 등록되지 않음
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: 인증 실패
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 오늘의 운세 조회
+      tags:
+      - fortune
+  /records/:
+    get:
+      consumes:
+      - application/json
+      description: 사용자의 최근 운세 기록을 조회합니다. 오늘의 운세, 궁합 결과, AI 이미지 등 모든 타입의 기록이 최신순으로
+        반환됩니다.
+      parameters:
+      - default: 20
+        description: 반환할 최대 기록 수
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 기록 목록 조회 성공
+          schema:
+            $ref: '#/definitions/handler.RecordsResponse'
+        "401":
+          description: 인증 실패
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 서버 내부 오류
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 최근 기록 조회
+      tags:
+      - records
+  /records/{type}:
+    get:
+      consumes:
+      - application/json
+      description: 특정 타입의 운세 기록만 필터링하여 조회합니다. 타입은 'today_fortune', 'compatibility',
+        'ai_spouse' 등이 있습니다.
+      parameters:
+      - description: 기록 타입 (today_fortune, compatibility, ai_spouse 등)
+        in: path
+        name: type
+        required: true
+        type: string
+      - default: 20
+        description: 반환할 최대 기록 수
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 타입별 기록 목록
+          schema:
+            $ref: '#/definitions/handler.RecordsResponse'
+        "401":
+          description: 인증 실패
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 서버 내부 오류
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 타입별 기록 조회
+      tags:
+      - records
+  /records/ai-image:
+    post:
+      consumes:
+      - application/json
+      description: AI로 생성된 미래 배우자 이미지의 URL을 기록으로 저장합니다. 외부 AI 이미지 생성 서비스에서 생성된 이미지
+        URL을 입력받아 저장합니다.
+      parameters:
+      - description: AI 이미지 기록 정보
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateAIImageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 기록 생성 성공
+          schema:
+            $ref: '#/definitions/handler.MessageResponse'
+        "400":
+          description: 잘못된 요청 (이미지 URL 형식 오류 등)
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: 인증 실패
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 서버 내부 오류
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: AI 배우자 이미지 기록 생성
+      tags:
+      - records
+securityDefinitions:
+  BearerAuth:
+    description: 'JWT 토큰을 사용한 인증. "Bearer " 뒤에 공백을 두고 JWT 토큰을 입력하세요. 예: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

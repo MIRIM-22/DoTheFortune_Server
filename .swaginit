@@ -1,0 +1,16 @@
+{
+  "generalInfo": {
+    "title": "DoTheFortune API",
+    "version": "1.0",
+    "description": "사주 기반 운세 서비스 API"
+  },
+  "securityDefinitions": {
+    "BearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Type \"Bearer\" followed by a space and JWT token."
+    }
+  }
+}
+
