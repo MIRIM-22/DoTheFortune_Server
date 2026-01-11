@@ -10,6 +10,7 @@ type RecordService interface {
 	GetRecentRecords(userID uint, limit int) ([]models.FortuneRecord, error)
 	GetRecordsByType(userID uint, recordType string, limit int) ([]models.FortuneRecord, error)
 	GetSpouseImage(userID uint) (string, error)
+	CreateRecord(userID uint, recordType, content, imageURL, metadata string) (*models.FortuneRecord, error)
 }
 
 type recordService struct {
@@ -45,3 +46,18 @@ func (s *recordService) GetSpouseImage(userID uint) (string, error) {
 	return fortuneInfo.SpouseImageURL, nil
 }
 
+func (s *recordService) CreateRecord(userID uint, recordType, content, imageURL, metadata string) (*models.FortuneRecord, error) {
+	record := &models.FortuneRecord{
+		UserID:   userID,
+		Type:     recordType,
+		Content:  content,
+		ImageURL: imageURL,
+		Metadata: metadata,
+	}
+
+	if err := s.recordRepo.Create(record); err != nil {
+		return nil, err
+	}
+
+	return record, nil
+}
