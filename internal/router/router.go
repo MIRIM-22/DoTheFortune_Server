@@ -73,9 +73,13 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 
 			records := protected.Group("/records")
 			{
-				records.GET("/", recordHandler.GetRecentRecords)
-				records.GET("/:type", recordHandler.GetRecordsByType)
+				// 구체적인 경로를 먼저 정의
 				records.GET("/spouse-image", recordHandler.GetSpouseImage)
+				// 그 다음 정적 경로
+				records.POST("", recordHandler.CreateRecord)
+				records.GET("", recordHandler.GetRecentRecords)
+				// 마지막으로 동적 경로
+				records.GET("/:type", recordHandler.GetRecordsByType)
 			}
 		}
 	}
