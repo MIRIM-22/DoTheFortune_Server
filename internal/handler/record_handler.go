@@ -119,3 +119,40 @@ func (h *RecordHandler) GetSpouseImage(c *gin.Context) {
 	})
 }
 
+type CreateRecordRequest struct {
+	Type     string `json:"type" binding:"required" example:"compatibility" description:"기록 타입 (compatibility, ai_spouse, today_fortune 등)"`
+	Content  string `json:"content" binding:"required" example:"궁합 결과: 85점" description:"기록 내용"`
+	ImageURL string `json:"image_url,omitempty" example:"https://example.com/image.jpg" description:"이미지 URL (선택사항)"`
+	Metadata string `json:"metadata,omitempty" example:"{\"score\": 85}" description:"추가 메타데이터 JSON (선택사항)"`
+}
+
+// CreateRecord godoc
+// @Summary      기록 생성
+// @Description  사용자의 운세 기록을 생성합니다.
+// @Tags         records
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request  body  CreateRecordRequest  true  "기록 생성 요청 정보"
+// @Success      201      {object}  models.FortuneRecord  "기록 생성 성공"
+// @Failure      400      {object}  ErrorResponse  "잘못된 요청"
+// @Failure      401      {object}  ErrorResponse  "인증 실패"
+// @Failure      500      {object}  ErrorResponse  "서버 내부 오류"
+// @Router       /records/ [post]
+func (h *RecordHandler) CreateRecord(c *gin.Context) {
+	userID := c.MustGet("user_id").(uint)
+
+	var req CreateRecordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	record, err := h.recordService.CreateRecord(userID, req.Type, req.Content, req.ImageURL, req.Metadata)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, record)
+}
